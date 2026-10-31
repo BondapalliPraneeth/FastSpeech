@@ -1,0 +1,7 @@
+data/
+ref/
+__pycache__/
+*.pyc
+English/data/
+Telugu/data/
+fs2/hifigan/generator_universal.pth.tar

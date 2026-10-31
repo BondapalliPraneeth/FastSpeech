@@ -1,0 +1,61 @@
+# FastSpeech 2 - Telugu (IndicTTS Telugu). Single config replacing ming024's preprocess.yaml / model.yaml / train.yaml.
+# Relative paths ("./...") are resolved against this file's folder.
+preprocess:
+  dataset: "IndicTTS-Telugu"
+  path:
+    raw_path: "./data/raw"                  # <speaker>/<utt>.wav + .lab (written by preprocess.py prepare)
+    preprocessed_path: "./data/preprocessed"
+    mfa_dict_path: "./data/telugu_mfa.dict"
+  corpus:                                   # data selection / subsampling strategy
+    hf_id: "SPRINGLab/IndicTTS_Telugu"
+    split: "train"                            # HF mirror of IndicTTS Telugu (2 speakers, 36.7 h, 48 kHz)
+    train_hours: 5.0
+    val_hours: 1.0
+    min_dur: 1.5                            # seconds
+    max_dur: 12.0                           # keeps mel length < max_seq_len
+    min_words: 2
+    gender: 1                               # HF column "gender": speaker 1 has 6.9 h of 1-12 s utterances (speaker 0 only 2.3 h)
+    max_speakers: null                      # set an int to keep only the N speakers with most data
+    seed: 1234
+  preprocessing:
+    text: {language: "te"}
+    audio: {sampling_rate: 22050, max_wav_value: 32768.0}
+    stft: {filter_length: 1024, hop_length: 256, win_length: 1024}
+    mel: {n_mel_channels: 80, mel_fmin: 0, mel_fmax: 8000}   # 8000 for the universal HiFi-GAN
+    pitch: {feature: "phoneme_level", normalization: True}
+    energy: {feature: "phoneme_level", normalization: True}
+
+model:
+  transformer:
+    encoder_layer: 4
+    encoder_head: 2
+    encoder_hidden: 256
+    decoder_layer: 6
+    decoder_head: 2
+    decoder_hidden: 256
+    conv_filter_size: 1024
+    conv_kernel_size: [9, 1]
+    encoder_dropout: 0.2
+    decoder_dropout: 0.2
+  variance_predictor: {filter_size: 256, kernel_size: 3, dropout: 0.5}
+  variance_embedding: {pitch_quantization: "linear", energy_quantization: "linear", n_bins: 256}
+  multi_speaker: False                       # one speaker is selected (see corpus.gender)
+  max_seq_len: 1500
+  vocoder: {model: "HiFi-GAN", speaker: "universal"}
+
+train:
+  path:
+    ckpt_path: "./checkpoints"
+    log_path: "./logs"
+    result_path: "../Results/Telugu"
+  optimizer:
+    batch_size: 16
+    betas: [0.9, 0.98]
+    eps: 0.000000001
+    weight_decay: 0.0
+    grad_clip_thresh: 1.0
+    grad_acc_step: 1
+    warm_up_step: 4000
+    anneal_steps: [20000, 26000]
+    anneal_rate: 0.3
+  step: {total_step: 30000, log_step: 50, val_step: 500, save_step: 5000}
