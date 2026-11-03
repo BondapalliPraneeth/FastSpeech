@@ -3,6 +3,7 @@ numpy
 scipy
 librosa>=0.10
 soundfile
+setuptools<81
 pyworld
 tgt
 scikit-learn
