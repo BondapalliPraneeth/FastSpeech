@@ -56,9 +56,9 @@ Telugu plots need a Telugu font (`sudo apt-get install fonts-noto-core` on Colab
 
 | | English | Telugu |
 |---|---|---|
-| Dataset | `ai4bharat/Svarah` (gated, Indian-accented English, multi-speaker) | `SPRINGLab/IndicTTS_Telugu` (HF mirror of IndicTTS Telugu: 8,576 utts, 36.7 h, 2 speakers, 48 kHz) |
+| Dataset | `ai4bharat/Svarah` (gated, Indian-accented English; no speaker-id column, so treated as one speaker id) | `SPRINGLab/IndicTTS_Telugu` (HF mirror of IndicTTS Telugu: 8,576 utts, 36.7 h, 2 speakers, 48 kHz) |
 | Selection | utterances 1.5-12 s, at least 3 words, annotation tags removed | one speaker (`gender=1`), utterances 1-12 s, at least 2 words |
-| Why that speaker | all speakers, multi-speaker model | speaker 1 has 6.9 h of 1-12 s clips; speaker 0 only 2.3 h |
+| Why that speaker | all speakers, single speaker id (no speaker labels in Svarah) | speaker 1 has 6.9 h of 1-12 s clips; speaker 0 only 2.3 h |
 | Subsampling | 5 h train, 1 h val | 5 h train, 1 h val |
 | Alignment | MFA, pretrained `english_us_arpa` | MFA trained from scratch (no pretrained Telugu model) |
 | Tokens | stress-free ARPAbet phones (CMUdict + g2p_en) | Unicode graphemes (code points) |
@@ -87,7 +87,7 @@ Shared (`fs2/`):
 - One `config.yaml` per language replaces the three yaml files.
 
 English-specific: number, time and year normalisation (`num2words`), POS-based homograph handling so that *conduct*
-(noun) and *conduct* (verb) get different pronunciations, multi-speaker embedding, `max_seq_len` raised to 1500.
+(noun) and *conduct* (verb) get different pronunciations, `max_seq_len` raised to 1500.
 
 Telugu-specific: NFC normalisation with ZWJ/ZWNJ removed, Telugu number/ordinal/time verbalisation (e.g. `2026` as
 రెండు వేల ఇరవై ఆరు, `12వ` as పన్నెండవ), grapheme tokens covering the whole Telugu Unicode block, MFA trained
