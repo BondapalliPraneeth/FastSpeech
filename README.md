@@ -61,7 +61,7 @@ Telugu plots need a Telugu font (`sudo apt-get install fonts-noto-core` on Colab
 | Why that speaker | all speakers, single speaker id (no speaker labels in Svarah) | speaker 1 has 6.9 h of 1-12 s clips; speaker 0 only 2.3 h |
 | Subsampling | 5 h train, 1 h val | 5 h train, 1 h val |
 | Alignment | MFA, pretrained `english_us_arpa` | MFA trained from scratch (no pretrained Telugu model) |
-| Tokens | stress-free ARPAbet phones (CMUdict + g2p_en) | Unicode graphemes (code points) |
+| Tokens | stress-marked ARPAbet phones (CMUdict + g2p_en) | Unicode graphemes (code points) |
 | Audio | 22.05 kHz, 80 mel bins, hop 256, F0 via WORLD (phoneme-level pitch/energy), universal HiFi-GAN vocoder |
 
 **Split:** utterances are grouped by normalised transcript, the groups are shuffled with seed 1234, and groups are

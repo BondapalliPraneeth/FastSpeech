@@ -1,5 +1,6 @@
 """English preprocessing: Svarah -> wav/lab -> MFA (pretrained english_us_arpa) -> mel/pitch/energy/duration.
 
+  python preprocess.py dict        # rebuild only the MFA dictionary from the existing corpus
   python preprocess.py prepare     # download + subsample + split + write raw corpus and MFA dictionary
   python preprocess.py align       # Montreal Forced Aligner (needs `mfa` on PATH, e.g. conda-forge)
   python preprocess.py features    # TextGrid -> durations, mel, pitch, energy, symbols.json, train/val.txt
@@ -26,13 +27,17 @@ def clean_transcript(text):
     return frontend.normalize(t).lower()
 
 
+def make_dict(pre):
+    pipeline.write_dictionary(pre["path"]["raw_path"], pre["path"]["mfa_dict_path"],
+                              lambda w: frontend.word_pron(w))
+
+
 def prepare(pre):
     cfg = dict(pre["corpus"])
     sr = pre["preprocessing"]["audio"]["sampling_rate"]
     recs = corpus.load_records(cfg["hf_id"], cfg.get("split"), cfg)
     corpus.prepare(recs, clean_transcript, cfg, pre["path"]["raw_path"], pre["path"]["preprocessed_path"], sr, "svarah")
-    pipeline.write_dictionary(pre["path"]["raw_path"], pre["path"]["mfa_dict_path"],
-                              lambda w: frontend.word_pron(w))
+    make_dict(pre)
 
 
 def align(pre, jobs):
@@ -45,7 +50,7 @@ def align(pre, jobs):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("stage", choices=["prepare", "align", "features", "all"])
+    ap.add_argument("stage", choices=["prepare", "dict", "align", "features", "all"])
     ap.add_argument("-c", "--config", default=os.path.join(HERE, "config.yaml"))
     ap.add_argument("-j", "--jobs", type=int, default=4)
     a = ap.parse_args()
@@ -53,6 +58,8 @@ if __name__ == "__main__":
     os.makedirs(pre["path"]["preprocessed_path"], exist_ok=True)
     if a.stage in ("prepare", "all"):
         prepare(pre)
+    if a.stage == "dict":
+        make_dict(pre)
     if a.stage in ("align", "all"):
         align(pre, a.jobs)
     if a.stage in ("features", "all"):

@@ -73,6 +73,9 @@ class Features:
                     if len(energy):
                         energy_sc.partial_fit(energy.reshape(-1, 1))
 
+        if not used_phones:
+            raise RuntimeError("No utterance could be processed: the TextGrids are empty or all 'spn'. "
+                               "Check the MFA log for 'pronunciations ... ignored' (dictionary phones must match the acoustic model).")
         p_mean, p_std = (pitch_sc.mean_[0], pitch_sc.scale_[0]) if self.pitch_norm else (0, 1)
         e_mean, e_std = (energy_sc.mean_[0], energy_sc.scale_[0]) if self.energy_norm else (0, 1)
         p_min, p_max = self.normalize(os.path.join(self.out_dir, "pitch"), p_mean, p_std)

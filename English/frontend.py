@@ -1,11 +1,17 @@
-"""English text frontend: normalisation (numbers, times, dates) + CMUdict/g2p_en -> stress-free ARPAbet."""
+"""English text frontend: normalisation (numbers, times, dates) + CMUdict/g2p_en -> stress-marked ARPAbet.
+
+MFA's pretrained english_us_arpa model uses stress-marked vowels (AH0/AH1/AH2) and plain consonants, so the same
+symbols are used for the alignment dictionary, the model vocabulary and inference.
+"""
 import re
 
 from num2words import num2words
 
 _g2p = None
 PUNCT_PAUSE = {",": "sp", ";": "sp", ":": "sp", ".": "sp", "?": "sp", "!": "sp"}
-ARPA = ("AA AE AH AO AW AY B CH D DH EH ER EY F G HH IH IY JH K L M N NG OW OY P R S SH T TH UH UW V W Y Z ZH").split()
+CONSONANTS = "B CH D DH F G HH JH K L M N NG P R S SH T TH V W Y Z ZH".split()
+VOWELS = "AA AE AH AO AW AY EH ER EY IH IY OW OY UH UW".split()
+ARPA = CONSONANTS + [v + str(i) for v in VOWELS for i in range(3)]
 
 
 def _time(m):
@@ -30,14 +36,14 @@ def normalize(text, keep_punct=False):
 
 # POS-dependent homographs that CMUdict/g2p_en do not disambiguate: word -> (noun/other, verb) pronunciation
 HOMOGRAPHS = {
-    "conduct": ("K AA N D AH K T", "K AH N D AH K T"),
-    "record": ("R EH K ER D", "R IH K AO R D"),
-    "present": ("P R EH Z AH N T", "P R IH Z EH N T"),
-    "object": ("AA B JH EH K T", "AH B JH EH K T"),
-    "permit": ("P ER M IH T", "P ER M IH T"),
-    "produce": ("P R OW D UW S", "P R AH D UW S"),
-    "project": ("P R AA JH EH K T", "P R AH JH EH K T"),
-    "increase": ("IH N K R IY S", "IH N K R IY S"),
+    "conduct": ("K AA1 N D AH0 K T", "K AH0 N D AH1 K T"),
+    "record": ("R EH1 K ER0 D", "R IH0 K AO1 R D"),
+    "present": ("P R EH1 Z AH0 N T", "P R IH0 Z EH1 N T"),
+    "object": ("AA1 B JH EH0 K T", "AH0 B JH EH1 K T"),
+    "permit": ("P ER1 M IH0 T", "P ER0 M IH1 T"),
+    "produce": ("P R OW1 D UW0 S", "P R AH0 D UW1 S"),
+    "project": ("P R AA1 JH EH0 K T", "P R AH0 JH EH1 K T"),
+    "increase": ("IH1 N K R IY0 S", "IH0 N K R IY1 S"),
 }
 
 
@@ -54,7 +60,6 @@ def _g2p_symbols(text):
             if out and out[-1] != "sp":
                 out.append("sp")
             continue
-        ph = re.sub(r"\d", "", ph)
         if ph in ARPA:
             out.append(ph)
     return out
