@@ -38,8 +38,9 @@ def prepare(pre):
 def align(pre, jobs):
     out = os.path.join(pre["path"]["preprocessed_path"], "TextGrid")
     pipeline.run(["mfa", "model", "download", "acoustic", "english_us_arpa"])
-    pipeline.run(["mfa", "align", "--clean", "-j", str(jobs), "--beam", "100", "--retry_beam", "400",
-                  pre["path"]["raw_path"], pre["path"]["mfa_dict_path"], "english_us_arpa", out])
+    # positional arguments first: `mfa align` ignores unknown options, so a leading "--beam" would be taken as the corpus dir
+    pipeline.run(["mfa", "align", pre["path"]["raw_path"], pre["path"]["mfa_dict_path"], "english_us_arpa", out,
+                  "--clean", "-j", str(jobs), "--beam", "100", "--retry_beam", "400"])
 
 
 if __name__ == "__main__":

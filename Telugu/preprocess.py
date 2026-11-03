@@ -36,8 +36,8 @@ def prepare(pre):
 def align(pre, jobs):
     out = os.path.join(pre["path"]["preprocessed_path"], "TextGrid")
     model_zip = os.path.join(pre["path"]["preprocessed_path"], "telugu_mfa_acoustic.zip")
-    pipeline.run(["mfa", "train", "--clean", "-j", str(jobs), "--output_model_path", model_zip,
-                  pre["path"]["raw_path"], pre["path"]["mfa_dict_path"], out])
+    pipeline.run(["mfa", "train", pre["path"]["raw_path"], pre["path"]["mfa_dict_path"], out,
+                  "--clean", "-j", str(jobs), "--output_model_path", model_zip])
 
 
 if __name__ == "__main__":
